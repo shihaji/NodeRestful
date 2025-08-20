@@ -57,8 +57,7 @@ app.get("/listAll",(req,res)=>{
         if(err){
 
         }else{
-            res.status(200).json(result);
-           
+            setTimeout(()=>res.status(200).json(result),1000)
         }
     })
 });
