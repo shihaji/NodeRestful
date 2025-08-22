@@ -30,6 +30,18 @@ conn.connect(err=>{
     }
 });
 
+app.get("/checkName/:name",(req,res)=>{
+
+    let {name}=req.params;
+
+    conn.query("select count(name) as count from user where name=?",
+        [name],(err,result)=>{
+            res.status(200).json(result[0]);
+       
+    })
+
+})
+
 app.get("/searchEmp/:id",(req,res)=>{
 
     let {id}=req.params;
