@@ -42,6 +42,19 @@ app.get("/checkName/:name",(req,res)=>{
 
 })
 
+app.get("/checkId/:id",(req,res)=>{
+
+    let {id}=req.params;;
+
+    conn.query("select count(id) as count from employee where id=?",[id],
+        (err,result)=>{
+
+
+            res.status(200).json(result[0]);
+
+    })
+})
+
 app.get("/searchEmp/:id",(req,res)=>{
 
     let {id}=req.params;
