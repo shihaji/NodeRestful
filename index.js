@@ -3,6 +3,7 @@ const express=require('express');
 const mysql=require('mysql2');
 const bodyParser=require('body-parser');
 const cors=require('cors');
+const jwt=require('jsonwebtoken');
 
 
 const app=express();
@@ -138,7 +139,12 @@ app.delete("/deleteEmp",(req,res)=>{
 
 app.post("/registerEmp",(req,res)=>{
 
+    let token=req.headers.authorization;
+
     let{id,name,salary}=req.body;
+
+    try{
+    jwt.verify(token,'botree')
 
     conn.query("insert into employee values(?,?,?)",
         [id,name,salary],(err,result)=>{
@@ -150,6 +156,28 @@ app.post("/registerEmp",(req,res)=>{
             }
 
         })
+    }catch(e){
+        console.log(e);
+        res.status(200).json({status:"Token Invalid"});
+    }
+})
+
+app.get("/cities/:id",(req,res)=>{
+
+    let {id}=req.params;
+
+    conn.query("select id,name from cities where sid=?",[id],(err,result)=>{
+        
+        res.status(200).json(result);
+    })
+})
+
+app.get("/states",(req,res)=>{
+
+    conn.query("select * from states",(err,result)=>{
+
+        res.status(200).json(result);
+    })
 })
 
 app.post("/authenticate",(req,res)=>{
@@ -160,6 +188,16 @@ app.post("/authenticate",(req,res)=>{
                 console.log(err)
             }else{
                 if(result.length>0 && result[0].password===password){
+                   
+                    let data={
+                        name:name,
+                        iat:Math.floor(Date.now()/1000),
+                        exp:Math.floor(Date.now()/1000)+(60*3),
+                    }
+                   const token= jwt.sign(data,'botree');
+                   res.appendHeader('Access-Control-Expose-Headers',"Authorization");
+                   res.appendHeader("Authorization",token);
+
                     res.status(200).json({status:true});
                 }else{
                     res.status(400).json({status:false});
